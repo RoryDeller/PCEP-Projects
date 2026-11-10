@@ -40,7 +40,7 @@ def enter_move(board):
         else: print("Space is already occupied, try again")
     
     
-def make_list_of_free_fields(board):
+def make_list_of_free_fields(board):                    #Returns all empty spaces not played on the board
     spaces = []
     for rw in range(len(board)):
         for col in range(len(board)):
@@ -49,7 +49,7 @@ def make_list_of_free_fields(board):
     return spaces
 
 
-def victory_for(board, sign):
+def victory_for(board, sign):                            #Checks for 3 count of the symbol via matching board positions
     final_board = []
     for row in range(len(board)):
         for col in range(len(board)):
