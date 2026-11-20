@@ -1,27 +1,22 @@
-import yfinance as yf 
+import yfinance as yf
+from decimal import Decimal as d, ROUND_HALF_EVEN
 
-ISA = {"SGLP.L": None, "0P0000SAVS.L": None, "IE00BK5BQT80.SG": None, "0P0000KM24.L": None}
-LISA = {"0P0000TK2K.L": None, "0P0000UGLE.L": None, "0P0000WGN4.L": None, "0P0000JLBQ.L": None, "0P0000KSP4.L": None, "RENG.L": None}
+ISA = {"SGLP.L": (), "IE00BK5BQT80.SG": (), "0P0000SAVS.L": (), "0P0000KM24.L": ()}
+LISA = {"0P0000TK2K.L": (), "0P0000UGLE.L": (), "0P0000WGN4.L": (), "0P0000JLBQ.L": (), "0P0000KSP4.L": (), "RENG.L": ()}
 
-def getWatchList(account):
-
+def getWatchList(account):                  #Use .info to retrive the last market day closed price and the current market price
+                                            #Decimal module allows precise rounding to the recorded market value on Stocks App
     for asset in account.keys():
-        ticker = yf.Ticker(asset)
-        stat = ticker.get_fast_info()
-        print(asset, stat['lastPrice'], stat['regularMarketPreviousClose'])
-        if stat['lastPrice'] or stat['regularMarketPreviousClose'] == 'nan':
-             print('continue')
+        stat = yf.Ticker(asset)
+        if ['regularMarketPrice'] == None or ['regularMarketPreviousClose'] == None:
+            percent = None
         else:
-            print(stat["lastPrice"], stat["regularMarketPreviousClose"])
-            percent = stat['lastPrice'] / stat['regularMarketPreviousClose'] * 100
-            print(percent)
-            account[asset] += ('lastPrice', 'regularMarketPreviousClose', percent,) 
-        
-                       
+            current, last, state = stat.info['regularMarketPrice'], stat.info['regularMarketPreviousClose'], stat.info['marketState']
+            percent = round((((current - last) / last) *  100),3)
+            percentR = float(d(str(percent)).quantize(d('0.01'), rounding=ROUND_HALF_EVEN))
+        account[asset] += (current, last,  percentR, state) 
+                 
     return account
-
-getWatchList(ISA)
-#print(getWatchList(ISA))
 
 def writeCSV():
 
@@ -31,6 +26,7 @@ def writeTXT():
     
     return
 
-
+for asset,stats in getWatchList(ISA).items():
+    print(asset, stats)
 
 
