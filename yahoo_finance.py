@@ -9,12 +9,12 @@ def getWatchList(account):                  #Use .info to retrive the last marke
     for asset in account.keys():
         stat = yf.Ticker(asset)
         if ['regularMarketPrice'] == None or ['regularMarketPreviousClose'] == None:
-            percent = None
+            percentR = None
         else:
             current, last, state = stat.info['regularMarketPrice'], stat.info['regularMarketPreviousClose'], stat.info['marketState']
             percent = round((((current - last) / last) *  100),3)
             percentR = float(d(str(percent)).quantize(d('0.01'), rounding=ROUND_HALF_EVEN))
-        account[asset] += (current, last,  percentR, state) 
+        account[asset] = (current, last,  percentR, state) 
                  
     return account
 
@@ -22,11 +22,18 @@ def writeCSV():
 
     return
 
-def writeTXT():
+def writeTXT(account):
+    with open('watchlist.txt', 'w') as file:
+        for ticker,stats in account.items():
+            file.write(f"{ticker}: {stats} \n")
+            #print(ticker, stats)
     
-    return
+    with open('watchlist.txt', 'r') as file:
+        return file.read()
+    
+    
 
-for asset,stats in getWatchList(ISA).items():
-    print(asset, stats)
+watchlist = writeTXT(getWatchList(ISA))
+print(watchlist)
 
 
